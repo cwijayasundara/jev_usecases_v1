@@ -1,0 +1,24 @@
+[project]
+name = "jev-for-judge"
+version = "0.1.0"
+description = "Sample Jev-as-a-judge evaluator, following the LangSmith weather-agent experiment."
+requires-python = ">=3.11"
+dependencies = [
+    "deepagents>=0.7.17",
+    "langchain>=1.4.2",
+    "langchain-openrouter>=0.2.0",
+    "typesafe-sdk",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["jev_judge", "usecases"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
