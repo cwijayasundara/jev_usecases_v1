@@ -1,1 +1,1 @@
-"""Harness decisions from the LangChain 'Building a Harness with Jev' walkthrough."""
+"""Harness decisions from the LangChain Jev walkthrough and the posts linked under that video."""

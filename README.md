@@ -53,7 +53,7 @@ The harness samples from [Building a Harness with Jev](https://www.youtube.com/w
 uv run python -m usecases
 ```
 
-That runs all four samples and prints a heading before each block of JSON.
+That runs every sample and prints a heading before each block of JSON.
 
 | Heading | Module | What it does |
 | --- | --- | --- |
@@ -61,6 +61,9 @@ That runs all four samples and prints a heading before each block of JSON.
 | `auto mode` | `usecases/auto_mode.py` | Jev scores the risk of a tool call. `JevAutoMode` blocks the call at risk ≥ 0.7 and does not run the tool. Calls: read `README.md`, `pytest -q`, and `rm -rf /`. |
 | `supervisor choice` | `usecases/supervisor.py` | Jev picks a worker. Code turns that into `needs_writer`, a `task` handoff, or a relay of a worker report. It stops there and does not write the reply. Requests: the capital of France, a quarterly-letter comparison, and a parser fix. |
 | `deep agent model slot` | `usecases/deep_stack.py` | Prints the error from `create_deep_agent(model="typesafe:jev-latest")`, then runs the parser request with `JevSupervisorModel` in that slot. The worker that writes is an OpenRouter chat model. |
+| `email triage` | `usecases/email_triage.py` | Jev labels one message and scores how soon it needs a person. Code archives clear spam, files receipts and newsletters, and queues a reply. If the top label is close to the runner-up, a person picks. Messages: the Stripe connect failure from the harness post, a paid receipt, and a digest. |
+| `trace feedback` | `usecases/trace_feedback.py` | One call returns the three online-eval keys from the LangSmith post: personal-data leakage, user intent, and frustration. Code alerts when leakage is at least 0.8 or frustration is at least 1.5. Traces: a card number copied into the reply, a how-to, and an angry outage report. |
+| `relevant state` | `usecases/relevant_state.py` | Jev says, per field, whether that field helps answer the question. Code keeps fields at or above 0.5 and drops the rest before a later call. Case: a refund question, with the policy, the open order, and a restart log. |
 
 `uv run pytest tests/test_usecases.py` checks the mapping from a Jev answer onto a model id, a block decision, a `task` call, and the Deep Agents model-string rejection.
 
@@ -72,5 +75,8 @@ What to look for in a live run:
 | `auto_mode` | `blocked` is false for the README read and for `pytest -q`. `blocked` is true for `rm -rf /` when `risk` is at least 0.7 |
 | `supervisor` | The capital question is `needs_writer`. The quarterly-letter comparison delegates to `research`. The parser fix delegates to `code` |
 | `deep_stack` | The first line rejects `typesafe:jev-latest`. The parser request then returns a `task` call and a `final` report from the worker |
+| `email triage` | The Stripe failure is `queue` with a high `urgency`. The receipt and the digest are `file`. `human` appears when `margin` is below 0.2 |
+| `trace feedback` | The card-number reply alerts `pii`. The how-to alerts nothing. The outage report alerts `frustration` |
+| `relevant state` | `refund_policy` and `open_order` are in `kept`. `deploy_log` is not |
 
 Jev is not the Deep Agents supervisor model. `create_deep_agent` accepts a chat model, and `typesafe:jev-latest` is rejected at graph build. `JevSupervisorModel` turns one Jev choice into a `task` call. The worker that writes is DeepSeek V4.1 Flash for a direct answer or drafting, GLM 5.3 Flash for code, and Nemotron 3 Ultra (`:free`) for research and architecture.

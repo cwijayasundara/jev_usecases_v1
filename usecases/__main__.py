@@ -7,8 +7,11 @@ from jev_judge.client import load_local_env
 
 from .auto_mode import CALLS, assess_tool_call
 from .deep_stack import run_jev_supervisor, string_model_is_rejected
+from .email_triage import MESSAGES, triage_message
 from .model_router import PROMPTS, route_request
+from .relevant_state import CASES, kept_fields, select_fields
 from .supervisor import REQUESTS, choose_worker, supervisor_action
+from .trace_feedback import TRACES, score_trace
 
 
 def main() -> None:
@@ -35,6 +38,21 @@ def main() -> None:
     print(string_model_is_rejected())
     code_request = REQUESTS[2]
     print(json.dumps({"request": code_request, **run_jev_supervisor(code_request)}))
+
+    print("\n== email triage ==")
+    for message in MESSAGES:
+        triage = triage_message(message["subject"], message["body"])
+        print(json.dumps({**message, **triage.as_dict()}))
+
+    print("\n== trace feedback ==")
+    for trace in TRACES:
+        feedback = score_trace(trace["user_message"], trace["assistant_message"])
+        print(json.dumps({**trace, **feedback.as_dict()}))
+
+    print("\n== relevant state ==")
+    for case in CASES:
+        relevance = select_fields(case["question"], case["fields"])
+        print(json.dumps({"question": case["question"], "relevance": relevance, "kept": kept_fields(relevance)}))
 
 
 if __name__ == "__main__":
